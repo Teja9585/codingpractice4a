@@ -40,7 +40,7 @@ app.get("/players/", async(request,response)=> {
     response.send(playersArray)
 
 })
-Add a player in team
+// Add a player in team
 app.post("/players/", async(request, response)=>{
     const cricketTeam =  request.body 
     const  {playerName,jerseyNumber,role} = cricketTeam
@@ -58,3 +58,46 @@ app.post("/players/", async(request, response)=>{
     response.send({playerId:playerId})
 
 }); 
+//Returns a player based on a player ID 
+app.get("/players/:playerId/", async(request,response)=>{
+    const {playerId} = request.params; 
+    const getPlayerQuery = `
+    SELECT * FROM cricket_team WHERE player_id = ${playerId};`;
+    const player = await db.get(getPlayerQuery)
+    response.send(player)
+})
+
+// Updates the details of a player in the team (database) based on the player ID
+
+app.put("/players/:playerId/",async(request,response) => {
+    const {playerId} = request.params 
+    const playerDetails = request.body;
+    const  { playerName, jerseyNumber, role } = playerDetails 
+    const updatePlayerQuery = `
+    UPDATE 
+     cricket_team
+    SET 
+    player_name = "${playerName}",
+    jersey_number = "${jerseyNumber}",
+    role = "${role}"
+    WHERE player_id = ${playerId};`;
+    await db.run(updatePlayerQuery) 
+    response.send("Player Details Updated")
+
+
+});
+
+
+//Deletes a player from the team (database) based on the player ID 
+app.delete("/players/:playerId/",async(request,response)=> {
+          const{playerId} = request.params;
+          const deletePlayerQuery = 
+          `DELETE 
+          FROM 
+          cricket_team 
+           WHERE player_id = ${playerId};`;
+
+          await db.run(deletePlayerQuery) 
+          response.send("Player Removed")
+
+})
